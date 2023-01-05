@@ -19,10 +19,24 @@ libraspa_dir = os.path.join(raspa_dir, "simulations/lib")
 libraspa_file = next(f for f in os.listdir(libraspa_dir) if "libraspa" in f)
 
 try:
-    import pybel
+    # Open Babel >= '3.0.0'
+    from openbabel import openbabel as ob
+    from openbabel import pybel
+    ob = pybel.ob
+    GetAtomicNum = ob.GetAtomicNum
+    GetSymbol = ob.GetSymbol
     PYBEL_LOADED = True
 except ImportError:
-    PYBEL_LOADED = False
+    try:
+        # Open Babel <= '2.4.0'
+        import pybel
+        ob = pybel.ob
+        table = ob.OBElementTable()
+        GetAtomicNum = table.GetAtomicNum
+        GetSymbol = table.GetSymbol
+        PYBEL_LOADED = True
+    except ImportError:
+        PYBEL_LOADED = False
 
 
 def run(structure, molecule_name, temperature=273.15, pressure=101325,
